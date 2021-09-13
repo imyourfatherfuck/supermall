@@ -8,17 +8,13 @@ export function request(config) {
   })
 
   instance.interceptors.request.use(config => {
-    console.log(config)
     return config
   }, error => {
-    console.log(error)
   })
 
   instance.interceptors.response.use(res => {
-    console.log(res)
     return res.data
   }, error => {
-    console.log(error)
   })
 
   return instance(config)
