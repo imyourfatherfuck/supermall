@@ -4,7 +4,7 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <scroll class="content">
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <home-swiper :banners="banners"/>
 
       <recommend-view :recommends="recommends"/>
@@ -16,6 +16,7 @@
       <goods-list :goods="showGoods"/>
     </scroll>
 
+    <back-top @click.native="backClick" v-show="isShowBackTop"/>
   </div>
 </template>
 
@@ -24,6 +25,7 @@ import NavBar from "components/common/navbar/NavBar"
 import Scroll from "components/common/Scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/Goods/GoodsList";
+import BackTop from "components/content/BackTop/BackTop";
 
 import HomeSwiper from "./childComps/HomeSwiper"
 import RecommendView from "./childComps/RecommendView"
@@ -39,6 +41,7 @@ export default {
     Scroll,
     TabControl,
     GoodsList,
+    BackTop,
 
     HomeSwiper,
     RecommendView,
@@ -53,7 +56,8 @@ export default {
         'new': {page: 0, list: []},
         'sell': {page: 0, list: []},
       },
-      currentType: 'pop'
+      currentType: 'pop',
+      isShowBackTop: false
 
     }
   },
@@ -87,7 +91,12 @@ export default {
           break
       }
     },
-
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0, 500)
+    },
+    contentScroll(position) {
+      this.isShowBackTop = (-position.y) > 1000
+    },
     /**
      * 网络请求
      */
@@ -131,7 +140,7 @@ export default {
   z-index: 9;
 }
 
-.content{
+.content {
   overflow: hidden;
   position: absolute;
   top: 44px;
