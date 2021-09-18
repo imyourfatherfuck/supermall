@@ -1,3 +1,9 @@
+/**
+ * 频繁刷新防抖函數
+ * @param func
+ * @param delay
+ * @returns {function(...[*]=): void}
+ */
 export function debounce(func, delay) {
   let timer = null
   return function (...args) {

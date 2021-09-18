@@ -4,14 +4,17 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll" @pullingUp='loadMore'>
-      <home-swiper :banners="banners"/>
+    <tab-control :titles="['潮流', '精选', '时尚']" @tabClick="tabClick" v-show="isTabFixed" class="tab-control" ref="tabControl"/>
+
+    <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll"
+            @pullingUp='loadMore'>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
 
       <recommend-view :recommends="recommends"/>
 
       <feature-view/>
 
-      <tab-control class="tab-control" :titles="['潮流', '精选', '时尚']" @tabClick="tabClick"></tab-control>
+      <tab-control :titles="['潮流', '精选', '时尚']" @tabClick="tabClick" ref="tabControl"/>
 
       <goods-list :goods="showGoods"/>
     </scroll>
@@ -57,7 +60,9 @@ export default {
         'sell': {page: 0, list: []},
       },
       currentType: 'pop',
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false
 
     }
   },
@@ -102,12 +107,18 @@ export default {
       this.$refs.scroll.scrollTo(0, 0, 500)
     },
     contentScroll(position) {
+      //backTop 是否显示
       this.isShowBackTop = (-position.y) > 1000
+
+      //tabControl是否吸顶
+      this.isTabFixed = (-position.y) > this.tabOffsetTop
     },
     loadMore() {
       this.getHomeGoods(this.currentType)
     },
-
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+    },
     /**
      * 网络请求
      */
@@ -122,6 +133,7 @@ export default {
       getHomeGoods(type, page).then(res => {
         this.goods[type].list.push(...res.data.list)
         this.goods[type].page += 1
+        //完成上拉加载更多
         this.$refs.scroll.finishPullUp()
       })
     }
@@ -131,7 +143,6 @@ export default {
 
 <style scoped>
 #home {
-  padding-top: 44px;
   height: 100vh;
   position: relative;
 }
@@ -139,18 +150,8 @@ export default {
 .home-bar {
   background-color: var(--color-tint);
   color: #fff;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9;
 }
 
-.tab-control {
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
 
 .content {
   overflow: hidden;
@@ -160,4 +161,10 @@ export default {
   left: 0;
   right: 0;
 }
+
+.tab-control {
+  position: relative;
+  z-index: 9;
+}
+
 </style>
