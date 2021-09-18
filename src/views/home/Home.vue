@@ -4,7 +4,7 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll" @pullingUp="loadMore">
+    <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll" @pullingUp='loadMore'>
       <home-swiper :banners="banners"/>
 
       <recommend-view :recommends="recommends"/>
@@ -31,8 +31,8 @@ import HomeSwiper from "./childComps/HomeSwiper"
 import RecommendView from "./childComps/RecommendView"
 import FeatureView from "./childComps/FeatureView"
 
-
 import {getHomeMultidata, getHomeGoods} from "network/home"
+import {debounce} from "common/utils";
 
 export default {
   name: "Home",
@@ -73,6 +73,13 @@ export default {
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
   },
+  mounted() {
+    const refresh = debounce(this.$refs.scroll.refresh, 500)
+    //监听图片加载完成
+    this.$bus.$on('itemImageLoad', () => {
+      refresh()
+    })
+  },
   methods: {
 
     /**
@@ -97,11 +104,10 @@ export default {
     contentScroll(position) {
       this.isShowBackTop = (-position.y) > 1000
     },
-    loadMore(){
+    loadMore() {
       this.getHomeGoods(this.currentType)
-      this.$refs.scroll.scroll.refresh()
-    }
-    ,
+    },
+
     /**
      * 网络请求
      */
