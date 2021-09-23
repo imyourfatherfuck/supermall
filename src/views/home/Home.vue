@@ -62,8 +62,8 @@ export default {
       currentType: 'pop',
       isShowBackTop: false,
       tabOffsetTop: 0,
-      isTabFixed: false
-
+      isTabFixed: false,
+      saveY: 0
     }
   },
   computed: {
@@ -84,6 +84,14 @@ export default {
     this.$bus.$on('itemImageLoad', () => {
       refresh()
     })
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+    //回来时最好刷新一次，不然有奇怪bug
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY()
   },
   methods: {
 
