@@ -5,7 +5,7 @@
     </nav-bar>
 
     <tab-control :titles="['潮流', '精选', '时尚']" @tabClick="tabClick" v-show="isTabFixed" class="tab-control"
-                 ref="tabControl"/>
+                 ref="topTabControl"/>
 
     <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll"
             @pullingUp='loadMore'>
@@ -112,6 +112,8 @@ export default {
           this.currentType = 'sell'
           break
       }
+      this.$refs.tabControl.currentIndex = index
+      this.$refs.topTabControl.currentIndex = index
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 500)
