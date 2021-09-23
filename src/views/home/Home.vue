@@ -4,7 +4,8 @@
       <div slot="center">购物街</div>
     </nav-bar>
 
-    <tab-control :titles="['潮流', '精选', '时尚']" @tabClick="tabClick" v-show="isTabFixed" class="tab-control" ref="tabControl"/>
+    <tab-control :titles="['潮流', '精选', '时尚']" @tabClick="tabClick" v-show="isTabFixed" class="tab-control"
+                 ref="tabControl"/>
 
     <scroll class="content" ref="scroll" :probe-type="3" :pull-up-load="true" @scroll="contentScroll"
             @pullingUp='loadMore'>
@@ -35,7 +36,8 @@ import RecommendView from "./childComps/RecommendView"
 import FeatureView from "./childComps/FeatureView"
 
 import {getHomeMultidata, getHomeGoods} from "network/home"
-import {debounce} from "common/utils";
+import {itemListenerMixin} from "common/mixin";
+
 
 export default {
   name: "Home",
@@ -71,6 +73,7 @@ export default {
       return this.goods[this.currentType].list
     }
   },
+  mixins: [itemListenerMixin],
   created() {
     this.getHomeMultidata()
 
@@ -79,19 +82,18 @@ export default {
     this.getHomeGoods('sell')
   },
   mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh, 500)
-    //监听图片加载完成
-    this.$bus.$on('itemImageLoad', () => {
-      refresh()
-    })
   },
   activated() {
-    this.$refs.scroll.scrollTo(0,this.saveY,0)
+    this.$refs.scroll.scrollTo(0, this.saveY, 0)
     //回来时最好刷新一次，不然有奇怪bug
     this.$refs.scroll.refresh()
   },
   deactivated() {
+    //保存Y值
     this.saveY = this.$refs.scroll.getScrollY()
+
+    //取消全局监听事件
+    this.$bus.$off('itemImageLoad',this.itemImageListener)
   },
   methods: {
 
