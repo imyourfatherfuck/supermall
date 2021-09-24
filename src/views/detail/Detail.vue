@@ -2,11 +2,6 @@
   <div id="detail">
     <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick" ref="detailNavBar"/>
     <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
-      <ul>
-        <li v-for="item in $store.state.cartList">
-          {{item}}
-        </li>
-      </ul>
       <detail-swipper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
@@ -22,7 +17,7 @@
 
 <script>
 import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
-import Scroll from "components/common/Scroll/Scroll";
+import Scroll from "components/common/scroll/Scroll";
 import {debounce} from "common/utils";
 
 import DetailNavBar from "./childComps/DetailNavBar";
