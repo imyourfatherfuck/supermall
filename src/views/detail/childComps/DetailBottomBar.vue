@@ -35,7 +35,7 @@
 <style scoped>
   .bottom-bar {
     height: 58px;
-    position: fixed;
+    position: absolute;
     background-color: #fff;
     left: 0;
     right: 0;

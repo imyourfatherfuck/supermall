@@ -2,6 +2,11 @@
   <div id="detail">
     <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick" ref="detailNavBar"/>
     <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+      <ul>
+        <li v-for="item in $store.state.cartList">
+          {{item}}
+        </li>
+      </ul>
       <detail-swipper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
@@ -11,7 +16,7 @@
       <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
     <back-top @click.native="backTop" v-show="showBackTop"/>
-    <detail-bottom-bar/>
+    <detail-bottom-bar @addToCart="addToCart"/>
   </div>
 </template>
 
@@ -135,6 +140,15 @@ export default {
           this.$refs.detailNavBar.currentIndex = this.currentIndex
         }
       }
+    },
+    addToCart() {
+      const product = {}
+      product.img = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.realPrice
+      product.iid = this.iid
+      this.$store.dispatch('addCart', product)
     }
   }
 }
