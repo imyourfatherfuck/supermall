@@ -1,7 +1,7 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick"/>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick" ref="detailNavBar"/>
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <detail-swipper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
@@ -10,6 +10,8 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"/>
       <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
+    <back-top @click.native="backTop" v-show="showBackTop"/>
+    <detail-bottom-bar/>
   </div>
 </template>
 
@@ -25,9 +27,10 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import GoodsList from "components/content/Goods/GoodsList";
-import {itemListenerMixin} from "common/mixin";
+import {itemListenerMixin, backTopMixin} from "common/mixin";
 
 
 export default {
@@ -42,6 +45,7 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
 
     GoodsList
   },
@@ -55,10 +59,11 @@ export default {
       paramInfo: {},
       commentInfo: {},
       recommends: [],
-      themeTopYs: []
+      themeTopYs: [],
+      currentIndex: 0
     }
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   created() {
     //保存传入的iid
     this.iid = this.$route.params.iid
@@ -86,15 +91,6 @@ export default {
         this.commentInfo = data.rate.list[0]
       }
 
-      //dom渲染完毕 图片未加载
-      // this.$nextTick(() => {
-      //   this.themeTopYs = []
-      //   this.themeTopYs.push(0)
-      //   this.themeTopYs.push(this.$refs.params.$el.offsetTop)
-      //   this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
-      //   this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
-      //   console.log(this.themeTopYs)
-      // })
     })
 
     //请求推荐数据
@@ -121,10 +117,24 @@ export default {
       this.themeTopYs.push(this.$refs.params.$el.offsetTop)
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
-      console.log(this.themeTopYs)
+      this.themeTopYs.push(Number.MAX_VALUE)
     },
     titleClick(index) {
       this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+    },
+    contentScroll(position) {
+      //backTop 是否显示
+      this.showBackTop = (-position.y) > 1000
+
+      const positionY = -position.y
+
+      let length = this.themeTopYs.length
+      for (let i = 0; i < length - 1; i++) {
+        if (this.currentIndex !== i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1])) {
+          this.currentIndex = i
+          this.$refs.detailNavBar.currentIndex = this.currentIndex
+        }
+      }
     }
   }
 }
@@ -145,6 +155,6 @@ export default {
 }
 
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 58px);
 }
 </style>

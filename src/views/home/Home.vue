@@ -20,7 +20,7 @@
       <goods-list :goods="showGoods"/>
     </scroll>
 
-    <back-top @click.native="backClick" v-show="isShowBackTop"/>
+    <back-top @click.native="backTop" v-show="showBackTop"/>
   </div>
 </template>
 
@@ -29,14 +29,14 @@ import NavBar from "components/common/navbar/NavBar"
 import Scroll from "components/common/Scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/Goods/GoodsList";
-import BackTop from "components/content/BackTop/BackTop";
+
 
 import HomeSwiper from "./childComps/HomeSwiper"
 import RecommendView from "./childComps/RecommendView"
 import FeatureView from "./childComps/FeatureView"
 
 import {getHomeMultidata, getHomeGoods} from "network/home"
-import {itemListenerMixin} from "common/mixin";
+import {itemListenerMixin, backTopMixin} from "common/mixin";
 
 
 export default {
@@ -46,7 +46,6 @@ export default {
     Scroll,
     TabControl,
     GoodsList,
-    BackTop,
 
     HomeSwiper,
     RecommendView,
@@ -62,7 +61,6 @@ export default {
         'sell': {page: 0, list: []},
       },
       currentType: 'pop',
-      isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0
@@ -73,7 +71,7 @@ export default {
       return this.goods[this.currentType].list
     }
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   created() {
     this.getHomeMultidata()
 
@@ -93,7 +91,7 @@ export default {
     this.saveY = this.$refs.scroll.getScrollY()
 
     //取消全局监听事件
-    this.$bus.$off('itemImageLoad',this.itemImageListener)
+    this.$bus.$off('itemImageLoad', this.itemImageListener)
   },
   methods: {
 
@@ -115,12 +113,9 @@ export default {
       this.$refs.tabControl.currentIndex = index
       this.$refs.topTabControl.currentIndex = index
     },
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0, 500)
-    },
     contentScroll(position) {
       //backTop 是否显示
-      this.isShowBackTop = (-position.y) > 1000
+      this.showBackTop = (-position.y) > 1000
 
       //tabControl是否吸顶
       this.isTabFixed = (-position.y) > this.tabOffsetTop
